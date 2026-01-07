@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Get the script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source common config path logic
+source "$SCRIPT_DIR/lib-get-config-path"
+
+echo "Using config folder: $CONFIG_PATH"
+
+# Check if configuration.nix exists in the folder
+TARGET_CONFIG="$CONFIG_PATH/configuration.nix"
+if [ ! -f "$TARGET_CONFIG" ]; then
+  echo "Error: configuration.nix not found in $CONFIG_PATH"
+  exit 1
+fi
+
+echo "Target configuration: $TARGET_CONFIG"
+
+# Handle /etc/nixos/configuration.nix
+NIXOS_CONFIG="/etc/nixos/configuration.nix"
+BACKUP_PATH="/etc/nixos/configuration.nix.bak"
+
+# Check if already correctly symlinked (idempotent check)
+if [ -L "$NIXOS_CONFIG" ]; then
+  CURRENT_TARGET="$(readlink -f "$NIXOS_CONFIG")"
+  if [ "$CURRENT_TARGET" = "$TARGET_CONFIG" ]; then
+    echo "Setup already complete! Symlink already points to: $TARGET_CONFIG"
+    exit 0
+  fi
+fi
+
+if [ -e "$NIXOS_CONFIG" ]; then
+  if [ -L "$NIXOS_CONFIG" ]; then
+    # It's a symlink
+    echo "Existing symlink detected at $NIXOS_CONFIG"
+    LINK_TARGET="$(readlink -f "$NIXOS_CONFIG")"
+    echo "Current symlink points to: $LINK_TARGET"
+    echo "Backing up symlink target to $BACKUP_PATH"
+    echo "$LINK_TARGET" | sudo tee "$BACKUP_PATH" > /dev/null
+    sudo rm "$NIXOS_CONFIG"
+  elif [ -f "$NIXOS_CONFIG" ]; then
+    # It's a regular file
+    echo "Existing file detected at $NIXOS_CONFIG"
+    echo "Backing up to $BACKUP_PATH"
+    sudo cp "$NIXOS_CONFIG" "$BACKUP_PATH"
+    sudo rm "$NIXOS_CONFIG"
+  fi
+fi
+
+# Create symlink
+echo "Creating symlink: $NIXOS_CONFIG -> $TARGET_CONFIG"
+sudo ln -s "$TARGET_CONFIG" "$NIXOS_CONFIG"
+
+echo "Setup complete!"
+echo "Configuration symlinked to: $TARGET_CONFIG"

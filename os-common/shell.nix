@@ -1,0 +1,7 @@
+{ ... }:
+
+{
+  environment.shellAliases = {
+    ".." = "cd ..";
+  };
+}

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Get the script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source common config path logic
+source "$SCRIPT_DIR/lib-get-config-path"
+
+HOME_DIR="${HOME_DIR:-/home/nixos}"
+
+echo "Deploying to: $HOME_DIR"
+echo ""
+
+deploy_apps_from_dir() {
+  local source_dir="$1"
+
+  echo "=== Deploying Apps ==="
+  echo ""
+
+  for app_dir in "$source_dir"/*; do
+    if [ ! -d "$app_dir" ]; then
+      continue
+    fi
+
+    app_name=$(basename "$app_dir")
+    target_dir="$HOME_DIR/$app_name"
+
+    echo "--- $app_name ---"
+
+    # Create target directory
+    mkdir -p "$target_dir"
+
+    # Sync all files and directories from app directory
+    echo "  Syncing files to $target_dir/"
+    rsync -a "$app_dir/" "$target_dir/"
+
+    # Start docker compose unless do-not-start-on-apply file exists
+    if [ -f "$app_dir/do-not-start-on-apply" ]; then
+      echo "  Skipping docker compose start (do-not-start-on-apply file present)"
+    else
+      echo "  Starting docker compose for $app_name..."
+      docker compose -f "$target_dir/compose.yml" up --remove-orphans -d
+    fi
+
+    echo ""
+  done
+}
+
+# Deploy apps
+APPS_DIR="$CONFIG_PATH/apps"
+COMMON_APPS_DIR="$SCRIPT_DIR/apps-common"
+
+if [ -d "$APPS_DIR" ]; then
+  deploy_apps_from_dir "$APPS_DIR"
+fi
+
+if [ -d "$COMMON_APPS_DIR" ]; then
+  deploy_apps_from_dir "$COMMON_APPS_DIR"
+fi
+
+echo "Deployment complete!"

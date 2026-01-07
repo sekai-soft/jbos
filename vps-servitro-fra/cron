@@ -1,0 +1,4 @@
+SHELL=/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+0 0 1 * * root /root/backup-configs/main.sh
+0 0 * * 0 root /root/report-disk-usage/main.sh

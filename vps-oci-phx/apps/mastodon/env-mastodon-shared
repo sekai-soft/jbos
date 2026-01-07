@@ -1,0 +1,15 @@
+LOCAL_DOMAIN=mastodon.ktachibana.party
+DB_HOST=db
+DB_USER=mastodon
+DB_NAME=mastodon_production
+DB_PASS=
+DB_PORT=5432
+REDIS_HOST=redis
+REDIS_PORT=6379
+GITHUB_REPOSITORY=sekai-soft/mastodon
+DEFAULT_LOCALE=zh-CN
+STREAMING_API_BASE_URL=wss://mastodon-streaming.ktachibana.party
+ES_ENABLED=true
+ES_HOST=es
+ES_PORT=9200
+ES_PRESET=single_node_cluster

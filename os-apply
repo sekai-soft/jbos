@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo "Applying NixOS configuration..."
+echo ""
+
+# Apply the configuration
+sudo nixos-rebuild switch
+
+echo ""
+echo "NixOS configuration applied successfully!"

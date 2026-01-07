@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+set -e
+
+# Get the script's directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source common config path logic
+source "$SCRIPT_DIR/lib-get-config-path"
+
+HOME_DIR="${HOME_DIR:-/home/nixos}"
+
+echo "Deploying to: $HOME_DIR"
+echo ""
+
+deploy_jobs_from_dir() {
+  local source_dir="$1"
+
+  echo "=== Deploying Jobs ==="
+  echo ""
+
+  for job_dir in "$source_dir"/*; do
+    if [ ! -d "$job_dir" ]; then
+      continue
+    fi
+
+    job_name=$(basename "$job_dir")
+    target_dir="$HOME_DIR/$job_name"
+
+    echo "--- $job_name ---"
+
+    # Create target directory
+    mkdir -p "$target_dir"
+
+    # Sync all files and directories from job directory
+    echo "  Syncing files to $target_dir/"
+    rsync -a "$job_dir/" "$target_dir/"
+
+    echo ""
+  done
+}
+
+# Deploy jobs
+JOBS_DIR="$CONFIG_PATH/jobs"
+COMMON_JOBS_DIR="$SCRIPT_DIR/jobs-common"
+
+if [ -d "$JOBS_DIR" ]; then
+  deploy_jobs_from_dir "$JOBS_DIR"
+fi
+
+if [ -d "$COMMON_JOBS_DIR" ]; then
+  deploy_jobs_from_dir "$COMMON_JOBS_DIR"
+fi
+
+echo "Deployment complete!"

@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+set -e
+
+NIXOS_CONFIG="/etc/nixos/configuration.nix"
+BACKUP_PATH="/etc/nixos/configuration.nix.bak"
+
+echo "Reverting setup script changes..."
+
+# Check if backup exists
+if [ ! -e "$BACKUP_PATH" ]; then
+  echo "Error: No backup found at $BACKUP_PATH"
+  echo "Nothing to revert."
+  exit 1
+fi
+
+# Remove current symlink/file if it exists
+if [ -e "$NIXOS_CONFIG" ]; then
+  echo "Removing current configuration at $NIXOS_CONFIG"
+  sudo rm "$NIXOS_CONFIG"
+fi
+
+# Check if backup is a regular file or contains a symlink path
+if [ -f "$BACKUP_PATH" ]; then
+  # Read first line to check if it's a path (from symlink backup)
+  first_line="$(head -n 1 "$BACKUP_PATH")"
+
+  # If it looks like an absolute path and file exists, it's a symlink backup
+  if [[ "$first_line" == /* ]] && [ -f "$first_line" ]; then
+    echo "Restoring symlink to: $first_line"
+    sudo ln -s "$first_line" "$NIXOS_CONFIG"
+    sudo rm "$BACKUP_PATH"
+    echo "Symlink restored successfully!"
+  else
+    # It's a regular file backup
+    echo "Restoring file from backup"
+    sudo mv "$BACKUP_PATH" "$NIXOS_CONFIG"
+    echo "File restored successfully!"
+  fi
+else
+  echo "Error: Backup exists but is not a regular file"
+  exit 1
+fi
+
+echo "Revert complete!"

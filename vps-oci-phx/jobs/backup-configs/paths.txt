@@ -1,0 +1,14 @@
+# One file path per line. Lines starting with # are ignored.
+# Example:
+# /etc/nixos/configuration.nix
+/home/nixos/env-backup
+/home/nixos/galerie/env
+/home/nixos/galerie/env-backup
+/home/nixos/galerie/env-backup-miniflux
+/home/nixos/galerie/sessions_cookies.jsonl
+/home/nixos/mastodon/env
+/home/nixos/mastodon/env-backup
+/home/nixos/mastodon/env-cloudflared
+/home/nixos/mastodon/env-cloudflared-streaming
+/home/nixos/rsshub/env
+/home/nixos/rss-lambda/env

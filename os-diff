@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+set -e
+
+echo "Building NixOS configuration and showing diff..."
+echo ""
+
+# Build the new configuration without activating
+echo "Building new configuration..."
+sudo nixos-rebuild build
+
+# Get current system profile
+CURRENT_SYSTEM="/run/current-system"
+
+# Get newly built system profile (created by nixos-rebuild build)
+NEW_SYSTEM="./result"
+
+echo ""
+echo "=== Configuration Diff ==="
+echo ""
+
+# Use nvd to show a nice diff
+nix-shell -p nvd --run "nvd diff $CURRENT_SYSTEM $NEW_SYSTEM"
+
+echo ""
+echo "========================================="
+echo "Review complete. Use 'sudo nixos-rebuild switch' to apply changes."
+echo "========================================="
+
+# Cleanup
+echo ""
+echo "Cleaning up build artifacts..."
+rm -f ./result
