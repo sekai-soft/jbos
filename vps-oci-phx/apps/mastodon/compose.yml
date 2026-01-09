@@ -50,6 +50,7 @@ services:
       - redis
     volumes:
       - ./public/system:/mastodon/public/system
+    network_mode: service:web-ts
 
   streaming:
     # build: .
@@ -130,12 +131,21 @@ services:
     # ports:
     #   - '127.0.0.1:9200:9200'
 
-  cloudflared:
-    image: cloudflare/cloudflared
+  web-ts:
+    image: tailscale/tailscale:latest
     restart: unless-stopped
-    command: tunnel run mastodon
+    hostname: mastodon
+    environment:
+      - TS_EXTRA_ARGS=--advertise-tags=tag:server
+      - TS_STATE_DIR=/var/lib/tailscale
     env_file:
-      - env-cloudflared
+      - /home/nixos/env-tailscale
+    volumes:
+      - web-ts:/var/lib/tailscale
+      - /dev/net/tun:/dev/net/tun
+    cap_add:
+      - net_admin
+      - sys_module
     labels:
       - com.centurylinklabs.watchtower.enable=true
 
@@ -178,4 +188,5 @@ services:
 #     internal: true
 
 volumes:
+  web-ts:
   streaming-ts:
