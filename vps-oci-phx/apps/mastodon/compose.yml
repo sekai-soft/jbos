@@ -72,6 +72,7 @@ services:
     depends_on:
       - db
       - redis
+    network_mode: service:streaming-ts
 
   sidekiq:
     # build: .
