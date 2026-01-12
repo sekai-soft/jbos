@@ -83,6 +83,9 @@ in
     virtualHosts."galerie-reader.app".extraConfig = ''
       reverse_proxy http://galerie:5000
     '';
+    virtualHosts."rss-lambda.xyz".extraConfig = ''
+      reverse_proxy http://rss-lambda:5000
+    '';
   };
   services.cron.systemCronJobs = [
     "0 0 1 * * nixos /home/nixos/mastodon-cleanup/main.sh"
