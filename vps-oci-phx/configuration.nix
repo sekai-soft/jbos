@@ -80,6 +80,9 @@ in
     virtualHosts."mastodon.ktachibana.party".extraConfig = ''
       reverse_proxy http://mastodon:3000
     '';
+    virtualHosts."galerie-reader.app".extraConfig = ''
+      reverse_proxy http://galerie:5000
+    '';
   };
   services.cron.systemCronJobs = [
     "0 0 1 * * nixos /home/nixos/mastodon-cleanup/main.sh"
