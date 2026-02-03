@@ -41,6 +41,9 @@ in
     virtualHosts."navidrome.${privateBaseDomain}".extraConfig = ''
       reverse_proxy http://navidrome:80
     '';
+    virtualHosts."open-webui.${privateBaseDomain}".extraConfig = ''
+      reverse_proxy http://open-webui:8080
+    '';
   };
   services.cron.systemCronJobs = [
     "0 0 1 * * nixos /home/nixos/backup-configs/main.sh"
