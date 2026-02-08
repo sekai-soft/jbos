@@ -89,6 +89,9 @@ in
     virtualHosts."github-org-actions.sekaisoft.tech".extraConfig = ''
       reverse_proxy http://github-org-actions:8080
     '';
+    virtualHosts."status.sekaisoft.tech".extraConfig = ''
+      reverse_proxy http://uptime-kuma-sekaisoft:80
+    '';
   };
   services.cron.systemCronJobs = [
     "0 0 1 * * nixos /home/nixos/mastodon-cleanup/main.sh"
